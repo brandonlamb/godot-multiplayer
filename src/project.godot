@@ -1,0 +1,17 @@
+config_version=3
+
+config_version=null
+
+[application]
+
+config/name="godot-multiplayer"
+run/main_scene="res://example/main.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+gamestate="*res://example/gamestate.gd"
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"
