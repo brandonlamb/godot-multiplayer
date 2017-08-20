@@ -3,6 +3,10 @@ extends Control
 signal server_started(ctx)
 signal server_stopped()
 
+func _ready():
+	get_node("messages").set_scroll_follow(true)
+	get_node("messages").set_scroll_active(true)
+
 func _on_start_server_pressed():
 	var ctx = {
 		"ip_address": get_node("ip_address").text,

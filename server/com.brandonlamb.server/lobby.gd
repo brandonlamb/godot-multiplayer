@@ -19,9 +19,9 @@ func _ready():
 	t.connect("network_peer_connected", self, "_network_peer_connected")
 	t.connect("network_peer_disconnected", self, "_network_peer_disconnected")
 
-	t.connect("connected_to_server", self, "_connected_to_server")
-	t.connect("connection_failed", self, "_connection_failed")
-	t.connect("server_disconnected", self, "_server_disconnected")
+#	t.connect("connected_to_server", self, "_connected_to_server")
+#	t.connect("connection_failed", self, "_connection_failed")
+#	t.connect("server_disconnected", self, "_server_disconnected")
 
 func _on_server_started(ctx):
 	print("Starting server")
@@ -46,27 +46,22 @@ func _network_peer_disconnected(id):
 		player_disconnected(id)
 		players.erase(id)
 
-func _connected_to_server():
-	ui.add_message("_connected_to_server")
-	rpc("player_joined", get_tree().get_network_unique_id(), name)
-	#mainmenu.hide()
+#func _connected_to_server():
+#	ui.add_message("_connected_to_server")
+#	rpc("player_joined", get_tree().get_network_unique_id(), name)
 
-func _connection_failed():
-	print("Failed connecting to the server")
-	ui.add_message("_connection_failed")
-	#mainmenu.set_message("Failed connecting to the server.")
-	#end_game()
+#func _connection_failed():
+#	print("Failed connecting to the server")
+#	ui.add_message("_connection_failed")
 
-func _server_disconnected():
-	print("Disconnected from server")
-	ui.add_message("_server_disconnected")
-	#mainmenu.set_message("Disconnected from server.")
-	#end_game()
+#func _server_disconnected():
+#	print("Disconnected from server")
+#	ui.add_message("_server_disconnected")
 
 func host_game(ip, port, max_clients):
 	var net = NetworkedMultiplayerENet.new()
 	net.set_bind_ip(ip)
-	net.set_compression_mode(net.COMPRESS_ZLIB)
+	#net.set_compression_mode(net.COMPRESS_ZLIB)
 
 	if net.create_server(port, max_clients) != OK:
 		print("Cannot create a server on ip:port ", ip, ":", port, "!")
@@ -110,7 +105,10 @@ func world_ready():
 
 
 
+
+
 master func player_joined(id, name):
+	ui.add_message(str("player_joined id:name ", id, ":", name))
 	if !players.has(id) || players[id] != null || !get_tree().is_network_server():
 		return
 
@@ -118,6 +116,7 @@ master func player_joined(id, name):
 	player_connected(id)
 
 master func player_ready(id):
+	ui.add_message(str("player_ready id ", id))
 	if !players.has(id) || players[id] == null || !get_tree().is_network_server():
 		return
 
@@ -132,23 +131,18 @@ master func player_ready(id):
 			var pos = i.get_global_transform().origin
 			rpc_id(id, "spawn_player", pid, players[pid], pos)
 
-	var spawn_pos = get_random_spawnpoint()
+	var spawn_pos = Vector2(0, 0)
 	rpc("spawn_player", id, players[id], spawn_pos)
-
-	#chatmgr.broadcast_msg(str(players[id], " connected."))
+	ui.add_message(str(players[id], " connected."))
 
 sync func spawn_player(id, name, pos = null):
-	if player_by_id(id) != null:
+	ui.add_message(str("spawn_player id:name ", id, ":", name))
+	if get_player_by_id(id) != null:
 		return
 
-	var inst = Node2D()
+	var inst = Node2D.new()
 	inst.set_name(str(id))
-	inst.player_name = str(name)
-
-	if id == get_tree().get_network_unique_id():
-		inst.set_network_mode(NETWORK_MODE_MASTER)
-	else:
-		inst.set_network_mode(NETWORK_MODE_SLAVE)
+	#inst.player_name = str(name)
 
 	world.get_node(PLAYERS_PATH).add_child(inst)
 
