@@ -44,7 +44,7 @@ _sections_unfolded = [ "Anchor", "Focus", "Grow Direction", "Hint", "Mouse", "Re
 
 margin_left = 20.0
 margin_top = 40.0
-margin_right = 140.0
+margin_right = 160.0
 margin_bottom = 70.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
@@ -63,7 +63,7 @@ _sections_unfolded = [ "Anchor", "Placeholder", "Rect", "Size Flags" ]
 [node name="label" type="Label" parent="lobby/ui/ip_address"]
 
 margin_top = -17.0
-margin_right = 190.0
+margin_right = 140.0
 margin_bottom = -3.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
@@ -78,9 +78,9 @@ _sections_unfolded = [ "Anchor" ]
 
 [node name="port" type="LineEdit" parent="lobby/ui"]
 
-margin_left = 152.0
+margin_left = 170.0
 margin_top = 40.0
-margin_right = 210.0
+margin_right = 228.0
 margin_bottom = 70.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
@@ -99,7 +99,7 @@ _sections_unfolded = [ "Anchor", "Placeholder", "Rect", "Size Flags" ]
 [node name="label" type="Label" parent="lobby/ui/port"]
 
 margin_top = -17.0
-margin_right = 80.0
+margin_right = 60.0
 margin_bottom = -3.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
@@ -116,7 +116,7 @@ _sections_unfolded = [ "Anchor" ]
 
 margin_left = 20.0
 margin_top = 100.0
-margin_right = 210.0
+margin_right = 230.0
 margin_bottom = 130.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
@@ -133,7 +133,7 @@ caret_blink_speed = 0.65
 [node name="label" type="Label" parent="lobby/ui/player_name"]
 
 margin_top = -20.0
-margin_right = 190.0
+margin_right = 210.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 2
@@ -185,7 +185,7 @@ _sections_unfolded = [ "Rect", "Size Flags" ]
 
 [node name="messages" type="RichTextLabel" parent="lobby/ui"]
 
-margin_left = 230.0
+margin_left = 240.0
 margin_top = 40.0
 margin_right = 620.0
 margin_bottom = 460.0
