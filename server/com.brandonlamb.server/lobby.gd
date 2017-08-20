@@ -12,9 +12,11 @@ slave var name = "Player"
 var players = {}
 
 func _ready():
+	# Listen for server start/stop signals
 	ui.connect("server_started", self, "_on_server_started")
 	ui.connect("server_stopped", self, "_on_server_stopped")
 
+	# Listen for network signals
 	var t = get_tree()
 	t.connect("network_peer_connected", self, "_network_peer_connected")
 	t.connect("network_peer_disconnected", self, "_network_peer_disconnected")
@@ -23,6 +25,10 @@ func _ready():
 #	t.connect("connection_failed", self, "_connection_failed")
 #	t.connect("server_disconnected", self, "_server_disconnected")
 
+"""
+Signal handler for when the "Start Server" button is clicked
+@param ctx { ip_address, port, max_clients }
+"""
 func _on_server_started(ctx):
 	print("Starting server")
 	ui.add_message("Starting server")
@@ -30,6 +36,9 @@ func _on_server_started(ctx):
 	if !host_game(ctx["ip_address"], ctx["port"], ctx["max_clients"]):
 		ui.add_message(str("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"]))
 
+"""
+Sgnal handler for when the "Stop Server" button is clicked
+"""
 func _on_server_stopped():
 	print("Stopping server")
 	ui.add_message("Stopping server")
@@ -40,6 +49,11 @@ func _network_peer_connected(id):
 	if get_tree().is_network_server():
 		players[id] = null
 
+"""
+Signal handler for when a client disconnects.
+Disconnect the player and cleanup any scene tree nodes
+@param id integer player's id
+"""
 func _network_peer_disconnected(id):
 	ui.add_message(str("_network_peer_disconnected ", id))
 	if get_tree().is_network_server() && players.has(id):
@@ -58,6 +72,13 @@ func _network_peer_disconnected(id):
 #	print("Disconnected from server")
 #	ui.add_message("_server_disconnected")
 
+"""
+Host a new game. Create a network server and bind to ip:port.
+@param ip string
+@param port integer
+@param max_clients integer
+@return bool
+"""
 func host_game(ip, port, max_clients):
 	var net = NetworkedMultiplayerENet.new()
 	net.set_bind_ip(ip)
