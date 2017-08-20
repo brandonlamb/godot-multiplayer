@@ -10,7 +10,6 @@ onready var world = get_parent().get_node("world")
 slave var name = "Player"
 
 var players = {}
-var world_ready = false
 
 func _ready():
 	ui.connect("client_connected", self, "_on_client_connected")
@@ -148,10 +147,6 @@ func get_players():
 			continue
 		ret.append(i)
 	return ret
-
-func world_ready():
-	ui.add_message("world_ready()")
-	world_ready = true
 
 """
 Spawn a player, called on both client and server

@@ -3,6 +3,10 @@ extends Control
 signal client_connected(ctx)
 signal client_disconnected()
 
+func _ready():
+	get_node("messages").set_scroll_active(true)
+	get_node("messages").set_scroll_follow(true)
+
 func _on_connect_pressed():
 	var ctx = {
 		"ip_address": get_node("ip_address").text,

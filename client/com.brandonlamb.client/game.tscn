@@ -44,14 +44,14 @@ _sections_unfolded = [ "Anchor", "Focus", "Grow Direction", "Hint", "Mouse", "Re
 
 margin_left = 20.0
 margin_top = 40.0
-margin_right = 110.0
+margin_right = 140.0
 margin_bottom = 70.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 0
 size_flags_horizontal = 1
 size_flags_vertical = 1
-text = "192.168.1.18"
+text = "127.0.0.1"
 expand_to_len = false
 focus_mode = 2
 placeholder_text = "IPv4 Address"
@@ -78,7 +78,7 @@ _sections_unfolded = [ "Anchor" ]
 
 [node name="port" type="LineEdit" parent="lobby/ui"]
 
-margin_left = 130.0
+margin_left = 152.0
 margin_top = 40.0
 margin_right = 210.0
 margin_bottom = 70.0
@@ -123,7 +123,7 @@ rect_clip_content = false
 mouse_filter = 0
 size_flags_horizontal = 1
 size_flags_vertical = 1
-text = "Player"
+text = "Player 1"
 expand_to_len = false
 focus_mode = 2
 placeholder_alpha = 0.6
