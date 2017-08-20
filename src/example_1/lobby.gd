@@ -9,6 +9,9 @@ onready var ui = get_node("ui")
 var spawn_points = []
 var players = {}
 var name = "Server"
+var server_options = {
+	"dedicated": false
+}
 var world
 
 func _ready():
@@ -50,7 +53,7 @@ func host_game(port, max_clients):
 		print("Cannot create a server on port ", port, "!")
 		return false
 
-	if sv_dedicated:
+	if server_options["dedicated"]:
 		print("Server hosted on port ", port, ".")
 		print("Max clients: ", max_clients)
 
