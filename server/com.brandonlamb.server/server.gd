@@ -9,7 +9,6 @@ signal network_peer_disconnected(id)
 var tree
 var settings
 var is_running
-var address
 var host
 var peers
 
@@ -45,7 +44,7 @@ func start():
 	)
 
 	if server != OK:
-		return Result.new(false, str("Cannot create a server on ip:port ", settings.ip, ":", settings.port, "!"))
+		return Result.new(false, str("Cannot create a server: ip=", settings.ip, ", port=", settings.port, "!"))
 
 	# Listen for network signals
 	tree.connect("network_peer_connected", self, "_network_peer_connected")
@@ -95,5 +94,4 @@ func _network_peer_disconnected(id):
 	emit_signal("network_peer_disconnected", id)
 
 	if tree.is_network_server() && peers.has(id):
-		player_disconnected(id)
 		peers.erase(id)

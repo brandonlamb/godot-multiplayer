@@ -11,7 +11,7 @@ config_version=3
 [application]
 
 config/name="godot-multiplayer-client"
-run/main_scene="res://com.brandonlamb.client/game.tscn"
+run/main_scene="res://example/game.tscn"
 config/icon="res://icon.png"
 
 [display]

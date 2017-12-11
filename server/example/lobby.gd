@@ -3,8 +3,8 @@ extends Node
 const Server = preload("res://com.brandonlamb.server/server.gd")
 const Settings = preload("res://com.brandonlamb.server/settings.gd")
 
-const NETWORK_MODE_MASTER = 1
-const NETWORK_MODE_SLAVE = 2
+#const NETWORK_MODE_MASTER = 1
+#const NETWORK_MODE_SLAVE = 2
 const PLAYERS_PATH = "players/"
 
 onready var ui = get_node("ui")
@@ -95,8 +95,7 @@ func _network_peer_disconnected(id):
 	print("_network_peer_disconnected: id=", id)
 	ui.add_message(str("_network_peer_disconnected: id=", id))
 
-#func player_disconnected(id):
-#	rpc("despawn_player", id)
+	rpc("despawn_player", id)
 
 func get_player_by_id(id):
 	var path = PLAYERS_PATH + str(id)
