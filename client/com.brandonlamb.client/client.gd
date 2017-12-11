@@ -28,7 +28,7 @@ func start():
 	if host != null:
 		return Result.new(false, "Host already connected")
 
-	var host = NetworkedMultiplayerENet.new()
+	host = NetworkedMultiplayerENet.new()
 	#host.set_compression_mode(host.COMPRESS_ZLIB)
 
 	var client = host.create_client(
@@ -37,6 +37,7 @@ func start():
 		settings.outbound_bandwidth,
 		settings.incoming_bandwidth
 	)
+
 	if client != OK:
 		return Result.new(false, str("Cannot create a client: ip=", settings.ip, ", port=", settings.port, "!"))
 
@@ -83,7 +84,7 @@ Signal handler for when a game server connects to us, we should receive ID=1
 func _network_peer_connected(id):
 	emit_signal("network_peer_connected", id)
 
-	if get_tree().is_network_server():
+	if tree.is_network_server():
 		peers[id] = null
 
 """
