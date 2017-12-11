@@ -32,6 +32,7 @@ func _on_server_started(ctx):
 	ui.add_message("Starting server")
 
 	if !host_game(ctx["ip_address"], ctx["port"], ctx["max_clients"]):
+		print("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"])
 		ui.add_message(str("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"]))
 
 """
@@ -40,16 +41,18 @@ Signal handler for when the "Stop Server" button is clicked
 func _on_server_stopped():
 	print("Stopping server")
 	ui.add_message("Stopping server")
-	var r = server.stop()
 
+	var r = server.stop()
 	if r.status:
 		print(r.message)
+		ui.add_message(r.message)
 
 """
 Signal handler for when a client connects.
 @param id integer player's id
 """
 func _network_peer_connected(id):
+	print("_network_peer_connected ", id)
 	ui.add_message(str("_network_peer_connected ", id))
 
 """
@@ -58,6 +61,7 @@ Disconnect the player and cleanup any scene tree nodes
 @param id integer player's id
 """
 func _network_peer_disconnected(id):
+	print("_network_peer_disconnected ", id)
 	ui.add_message(str("_network_peer_disconnected ", id))
 
 #func _connected_to_server():
