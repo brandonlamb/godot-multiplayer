@@ -1,5 +1,8 @@
 extends Node
 
+const Server = preload("res://com.brandonlamb.server/server.gd")
+const Settings = preload("res://com.brandonlamb.server/settings.gd")
+
 const NETWORK_MODE_MASTER = 1
 const NETWORK_MODE_SLAVE = 2
 const PLAYERS_PATH = "players/"
@@ -9,17 +12,12 @@ onready var world = get_parent().get_node("world")
 
 slave var name = "Player"
 
-var players = {}
+var server
 
 func _ready():
 	# Listen for server start/stop signals
 	ui.connect("server_started", self, "_on_server_started")
 	ui.connect("server_stopped", self, "_on_server_stopped")
-
-	# Listen for network signals
-	var t = get_tree()
-	t.connect("network_peer_connected", self, "_network_peer_connected")
-	t.connect("network_peer_disconnected", self, "_network_peer_disconnected")
 
 #	t.connect("connected_to_server", self, "_connected_to_server")
 #	t.connect("connection_failed", self, "_connection_failed")
@@ -37,17 +35,22 @@ func _on_server_started(ctx):
 		ui.add_message(str("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"]))
 
 """
-Sgnal handler for when the "Stop Server" button is clicked
+Signal handler for when the "Stop Server" button is clicked
 """
 func _on_server_stopped():
 	print("Stopping server")
 	ui.add_message("Stopping server")
-	get_tree().call_deferred("set_network_peer", null)
+	var r = server.stop()
 
+	if r.status:
+		print(r.message)
+
+"""
+Signal handler for when a client connects.
+@param id integer player's id
+"""
 func _network_peer_connected(id):
 	ui.add_message(str("_network_peer_connected ", id))
-	if get_tree().is_network_server():
-		players[id] = null
 
 """
 Signal handler for when a client disconnects.
@@ -56,9 +59,6 @@ Disconnect the player and cleanup any scene tree nodes
 """
 func _network_peer_disconnected(id):
 	ui.add_message(str("_network_peer_disconnected ", id))
-	if get_tree().is_network_server() && players.has(id):
-		player_disconnected(id)
-		players.erase(id)
 
 #func _connected_to_server():
 #	ui.add_message("_connected_to_server")
@@ -80,21 +80,29 @@ Host a new game. Create a network server and bind to ip:port.
 @return bool
 """
 func host_game(ip, port, max_clients):
-	var net = NetworkedMultiplayerENet.new()
-	net.set_bind_ip(ip)
-	#net.set_compression_mode(net.COMPRESS_ZLIB)
-
-	if net.create_server(port, max_clients) != OK:
-		print("Cannot create a server on ip:port ", ip, ":", port, "!")
-		ui.add_message(str("Cannot create a server on ip:port ", ip, ":", port, "!"))
+	if server != null:
+		print("Server already running")
 		return false
 
-	print("Server hosted on ip:port ", ip, ":", port, ".")
-	ui.add_message(str("Server hosted on ip:port ", ip, ":", port, "."))
-	print("Max clients: ", max_clients)
-	ui.add_message(str("Max clients: ", max_clients))
+	server = Server.new(get_tree(), Settings.new(ip, port, max_clients, 0, 0))
 
-	get_tree().set_network_peer(net)
+	# Listen for network signals
+	server.connect("network_peer_connected", self, "_network_peer_connected")
+	server.connect("network_peer_disconnected", self, "_network_peer_disconnected")
+
+	var r = server.start()
+
+	if !r.status:
+		print(r.message)
+		ui.add_message(r.message)
+		return false
+
+	print(r.message)
+	ui.add_message(r.message)
+
+	print("Max clients: ", server.settings.max_peers)
+	ui.add_message(str("Max clients: ", server.settings.max_peers))
+
 	#create_world()
 	return true
 
@@ -115,11 +123,14 @@ func get_player_by_id(id):
 func get_players():
 	var ret = []
 	for i in world.get_node(PLAYERS_PATH).get_children():
-		if !players.has(i.get_name().to_int()):
+		if !server.peers.has(i.get_name().to_int()):
 			continue
 		ret.append(i)
 	return ret
 
+"""
+Called by world on ready
+"""
 func world_ready():
 	if !get_tree().is_network_server():
 		rpc("player_ready", get_tree().get_network_unique_id())
@@ -130,15 +141,15 @@ func world_ready():
 
 master func player_joined(id, name):
 	ui.add_message(str("player_joined id:name ", id, ":", name))
-	if !players.has(id) || players[id] != null || !get_tree().is_network_server():
+	if !server.peers.has(id) || server.peers[id] != null || !get_tree().is_network_server():
 		return
 
-	players[id] = name
+	server.peers[id] = name
 	player_connected(id)
 
 master func player_ready(id):
 	ui.add_message(str("player_ready id ", id))
-	if !players.has(id) || players[id] == null || !get_tree().is_network_server():
+	if !server.peers.has(id) || server.peers[id] == null || !get_tree().is_network_server():
 		return
 
 	if id != 1:
@@ -150,11 +161,11 @@ master func player_ready(id):
 				continue
 
 			var pos = i.get_global_transform().origin
-			rpc_id(id, "spawn_player", pid, players[pid], pos)
+			rpc_id(id, "spawn_player", pid, server.peers[pid], pos)
 
 	var spawn_pos = Vector2(0, 0)
-	rpc("spawn_player", id, players[id], spawn_pos)
-	ui.add_message(str(players[id], " connected."))
+	rpc("spawn_player", id, server.peers[id], spawn_pos)
+	ui.add_message(str(server.peers[id], " connected."))
 
 sync func spawn_player(id, name, pos = null):
 	ui.add_message(str("spawn_player id:name ", id, ":", name))

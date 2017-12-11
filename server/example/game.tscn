@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://com.brandonlamb.server/lobby.gd" type="Script" id=1]
-[ext_resource path="res://com.brandonlamb.server/ui.gd" type="Script" id=2]
-[ext_resource path="res://com.brandonlamb.server/white.png" type="Texture" id=3]
-[ext_resource path="res://com.brandonlamb.server/world.gd" type="Script" id=4]
+[ext_resource path="res://example/lobby.gd" type="Script" id=1]
+[ext_resource path="res://example/ui.gd" type="Script" id=2]
+[ext_resource path="res://example/white.png" type="Texture" id=3]
+[ext_resource path="res://example/world.gd" type="Script" id=4]
 
 [node name="game" type="Node"]
 
