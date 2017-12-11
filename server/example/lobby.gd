@@ -19,63 +19,6 @@ func _ready():
 	ui.connect("server_started", self, "_on_server_started")
 	ui.connect("server_stopped", self, "_on_server_stopped")
 
-#	t.connect("connected_to_server", self, "_connected_to_server")
-#	t.connect("connection_failed", self, "_connection_failed")
-#	t.connect("server_disconnected", self, "_server_disconnected")
-
-"""
-Signal handler for when the "Start Server" button is clicked
-@param ctx { ip_address, port, max_clients }
-"""
-func _on_server_started(ctx):
-	print("Starting server")
-	ui.add_message("Starting server")
-
-	if !host_game(ctx["ip_address"], ctx["port"], ctx["max_clients"]):
-		print("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"])
-		ui.add_message(str("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"]))
-
-"""
-Signal handler for when the "Stop Server" button is clicked
-"""
-func _on_server_stopped():
-	print("Stopping server")
-	ui.add_message("Stopping server")
-
-	var r = server.stop()
-	if r.status:
-		print(r.message)
-		ui.add_message(r.message)
-
-"""
-Signal handler for when a client connects.
-@param id integer player's id
-"""
-func _network_peer_connected(id):
-	print("_network_peer_connected ", id)
-	ui.add_message(str("_network_peer_connected ", id))
-
-"""
-Signal handler for when a client disconnects.
-Disconnect the player and cleanup any scene tree nodes
-@param id integer player's id
-"""
-func _network_peer_disconnected(id):
-	print("_network_peer_disconnected ", id)
-	ui.add_message(str("_network_peer_disconnected ", id))
-
-#func _connected_to_server():
-#	ui.add_message("_connected_to_server")
-#	rpc("player_joined", get_tree().get_network_unique_id(), name)
-
-#func _connection_failed():
-#	print("Failed connecting to the server")
-#	ui.add_message("_connection_failed")
-
-#func _server_disconnected():
-#	print("Disconnected from server")
-#	ui.add_message("_server_disconnected")
-
 """
 Host a new game. Create a network server and bind to ip:port.
 @param ip string
@@ -88,6 +31,7 @@ func host_game(ip, port, max_clients):
 		print("Server already running")
 		return false
 
+	# Create new server, need to pass in scene tree and settings object
 	server = Server.new(get_tree(), Settings.new(ip, port, max_clients, 0, 0))
 
 	# Listen for network signals
@@ -110,12 +54,49 @@ func host_game(ip, port, max_clients):
 	#create_world()
 	return true
 
-func player_connected(id):
-	if id != 1:
-		rpc_id(id, "create_world")
+"""
+Signal handler for when the "Start Server" button is clicked
+@param ctx { ip_address, port, max_clients }
+"""
+func _on_server_started(ctx):
+	print("Starting server")
+	ui.add_message("Starting server")
 
-func player_disconnected(id):
-	rpc("despawn_player", id)
+	if !host_game(ctx["ip_address"], ctx["port"], ctx["max_clients"]):
+		print("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"])
+		ui.add_message(str("Unable to start server on ip:port ", ctx["ip_address"], ":", ctx["port"]))
+
+"""
+Signal handler for when the "Stop Server" button is clicked
+"""
+func _on_server_stopped():
+	print("Stopping server")
+	ui.add_message("Stopping server")
+
+	# Stop server, log result
+	var r = server.stop()
+	print(r.message)
+	ui.add_message(r.message)
+
+"""
+Signal handler for when a client connects.
+@param id integer player's id
+"""
+func _network_peer_connected(id):
+	print("_network_peer_connected: id=", id)
+	ui.add_message(str("_network_peer_connected: id=", id))
+
+"""
+Signal handler for when a client disconnects.
+Disconnect the player and cleanup any scene tree nodes
+@param id integer player's id
+"""
+func _network_peer_disconnected(id):
+	print("_network_peer_disconnected: id=", id)
+	ui.add_message(str("_network_peer_disconnected: id=", id))
+
+#func player_disconnected(id):
+#	rpc("despawn_player", id)
 
 func get_player_by_id(id):
 	var path = PLAYERS_PATH + str(id)
@@ -139,23 +120,31 @@ func world_ready():
 	if !get_tree().is_network_server():
 		rpc("player_ready", get_tree().get_network_unique_id())
 
-
-
-
+#
+# RPC functions
+#
 
 master func player_joined(id, name):
-	ui.add_message(str("player_joined id:name ", id, ":", name))
+	print("player_joined: id=", id, ", name=", name)
+	ui.add_message(str("player_joined: id=", id, ", name=", name))
+
 	if !server.peers.has(id) || server.peers[id] != null || !get_tree().is_network_server():
 		return
 
 	server.peers[id] = name
-	player_connected(id)
+
+	# Tell the client to run create_world
+	if id != 1:
+		rpc_id(id, "create_world")
 
 master func player_ready(id):
-	ui.add_message(str("player_ready id ", id))
+	print("player_ready: id=", id)
+	ui.add_message(str("player_ready: id=", id))
+
 	if !server.peers.has(id) || server.peers[id] == null || !get_tree().is_network_server():
 		return
 
+	# Tell the client to run clean_players
 	if id != 1:
 		rpc_id(id, "clean_players")
 
@@ -172,7 +161,9 @@ master func player_ready(id):
 	ui.add_message(str(server.peers[id], " connected."))
 
 sync func spawn_player(id, name, pos = null):
-	ui.add_message(str("spawn_player id:name ", id, ":", name))
+	print("spawn_player: id=", id, ", name=", name)
+	ui.add_message(str("spawn_player: id=", id, ", name=", name))
+
 	if get_player_by_id(id) != null:
 		return
 
@@ -183,6 +174,9 @@ sync func spawn_player(id, name, pos = null):
 	world.get_node(PLAYERS_PATH).add_child(inst)
 
 sync func despawn_player(id):
+	print("despawn_player: id=", id)
+	ui.add_message(str("despawn_player: id=", id))
+
 	var node = get_player_by_id(id)
 	if node != null:
 		node.queue_free()
