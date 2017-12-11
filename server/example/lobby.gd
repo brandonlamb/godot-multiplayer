@@ -78,6 +78,8 @@ func _on_server_stopped():
 	print(r.message)
 	ui.add_message(r.message)
 
+	server = null
+
 """
 Signal handler for when a client connects.
 @param id integer player's id

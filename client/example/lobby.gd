@@ -73,6 +73,13 @@ Signal handler for when the "Disconnect" button in the UI is clicked to leave a 
 func _on_client_disconnected():
 	print("_on_client_disconnected")
 	ui.add_message("_on_client_disconnected")
+
+	var r = client.stop()
+	print(r.message)
+	ui.add_message(r.message)
+
+	client = null
+
 	leave_game()
 
 """
@@ -118,6 +125,12 @@ Signal handler for when the server connects. Example: server shuts down
 func _server_disconnected():
 	print("_server_disconnected")
 	ui.add_message("_server_disconnected")
+
+	var r = client.stop()
+	print(r.message)
+	ui.add_message(r.message)
+
+	client = null
 
 	leave_game()
 

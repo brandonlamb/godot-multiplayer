@@ -53,6 +53,8 @@ func start():
 	# Set the host as the root network peer, which will be what enables the RPC call magic to happen
 	tree.set_network_peer(host)
 
+	is_running = true
+
 	return Result.new(true, "ENet host started")
 
 """
@@ -69,8 +71,8 @@ func stop():
 
 	# Cleanup
 	host.close_connection()
-	tree.call_deferred("set_network_peer", null)
 	host = null
+	tree.call_deferred("set_network_peer", null)
 
 	return Result.new(true, "Host successfully destroyed")
 
